@@ -20,7 +20,6 @@ const Organization = db.define("organization", {
 	id: {
 		type: DataTypes.INTEGER,
 		primaryKey: true,
-		autoIncrement: true,
 	},
 	name: {
 		type: DataTypes.STRING,
@@ -47,7 +46,6 @@ const User = db.define("user", {
 	id: {
 		type: DataTypes.INTEGER,
 		primaryKey: true,
-		autoIncrement: true,
 	},
 
 	organizationID: {
@@ -63,27 +61,37 @@ const User = db.define("user", {
 	},
 });
 const Pool = db.define("pool", {
-	// Model attributes are defined here
+	// size in gallons 	
 	id: {
 		type: DataTypes.INTEGER,
 		primaryKey: true,
-		autoIncrement: true,
 	},
+	organizationID:{
+		type:DataTypes.INTEGER,
+		allowNull: false,
+		references: {
+			model: "organizations",
+			key: "id",
+		},
+
+	},
+
 	name: {
 		type: DataTypes.STRING,
 		allowNull: false,
 	},
-	size: {
+	gallons: {
 		type: DataTypes.INTEGER,
 		allowNull: false,
 	},
+	
 });
 
-const Chemicals = db.define("chemical", {
-	// Model attributes are defined here
+const Chemicals = db.define("chemicals", {
+	//free chlorin ppm
+
 	userID: {
 		type: DataTypes.INTEGER,
-		autoIncrement: true,
 		references: {
 			model: "users",
 			key: "id",
@@ -101,23 +109,62 @@ const Chemicals = db.define("chemical", {
 	},
 
 	pH: {
-		type: DataTypes.DECIMAL,
+		type: DataTypes.DECIMAL(10,1),
 		allowNull: false,
 	},
 	Chlorine: {
-		type: DataTypes.DECIMAL,
+		type: DataTypes.DECIMAL(10,1),
 		allowNull: false,
 	},
 	Alkalinity: DataTypes.INTEGER,
 	Calcium: DataTypes.INTEGER,
 
 	Cynuaric: DataTypes.INTEGER,
-    Tempature: DataTypes.INTEGER,
-    createdAt: {
-        allowNull: false,
-        type: Sequelize.DATE,
-        defaultValue: Sequelize.fn('NOW'),
-        primaryKey:true
-      },
-     
-});
+	Tempature: DataTypes.DECIMAL(10,1),
+	
+	createdAt:{
+		type:DataTypes.DATE,
+		primaryKey:true,
+		defaultValue: Sequelize.NOW(),
+		allowNull: false
+	},
+		
+},{timestamps: false});
+
+// intehrate weather api to always get weather as well 
+
+
+const bulkOrgs = [
+	{id:1,name:'YMCA',email:'ymca@gmail.com',password:'FAKEPASS'},
+	{id:2,name:'City Aquaitcs',email:'aqua@gmail.com',password:'FAKEPASS'}
+]
+
+const bulkUsers = [
+	{id:1,organization:1,name:'Terriq'},
+	{id:2,organizationID:1,name:'Tom'},
+	{id:3,organizationID:2,name:'Sarah'},
+	{id:4,organizationID:2,name:'Tom'},
+]
+
+const bulkPool = [
+	{organizationID:1,id:1,name:'Play',gallons:30000},
+	{organizationID:1,id:2,name:'Outdoor',gallons:100000},
+	{organizationID:1,id:3,name:'Indoor',gallons:60000},
+	{organizationID:2,id:4,name:'Olymic',gallons:660000 },
+]
+
+
+const bulkChems = [
+	{id:1,userID:1,poolID:1,pH:7.3,Chlorine:3,Alkalinity:60,Calcium:300,Tempature:86,createdAt:'2020-08-27 14:41:33'},
+	{id:2,userID:1,poolID:1,pH:7.5,Chlorine:2,Tempature:85,createdAt:'2020-08-27 15:41:33'},
+	{id:3,userID:1,poolID:1,pH:7.6,Chlorine:1,Tempature:86,createdAt:'2020-08-27 16:41:33'},
+	{id:4,userID:1,poolID:1,pH:7.5,Chlorine:3,Tempature:85,createdAt:'2020-08-27 17:41:33'},
+]
+// Organization.bulkCreate(bulkOrgs)
+
+// User.bulkCreate(bulkUsers)
+// Pool.bulkCreate(bulkPool)
+// Chemicals.bulkCreate(bulkChems)
+
+
+exports.Chemicals = Chemicals
